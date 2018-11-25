@@ -112,7 +112,7 @@ public class Game implements ActionListener {
             for(int z=0;z<2;z++){
                 while(true){
                     //magic int
-                    int y = randomGenerator.nextInt(x*2); 
+                    int y = randomGenerator.nextInt(x*2);
                     if(board[y]==null){ //metoda equals zamiast ==
                         btn[y].setText(a[i]);
                         board[y]=a[i];

@@ -1,0 +1,12 @@
+1. Zamiast netbeansa lub eclipsa komercyjnie używa się Idea Intellij. To środowisko jest dobre.
+2. Klasę Game trzeba rozbić na kilka mniejszych klas, zgodnych z SOLID i DRY (klasa powinna być odpowiedzialna za jedną rzecz - https://pl.wikipedia.org/wiki/SOLID_(programowanie_obiektowe)  https://pl.wikipedia.org/wiki/DRY)
+3. Nie robimy magic stringów, intów i innych wartości wpisanych z palca w metodzie. Za tydzień nie będziemy pamiętać
+    dlaczego akurat tam int ma wartość 2, a jakiś String jest pusty.
+4. Nazwy metod, pól, obiektów i innych rzeczy dobieramy tak, by jednoznacznie opisywały czym są, tak by ktoś obcy,
+    patrząc na kod od razy się zorientował.
+5. Używamy modyfikatorów, by uniemożliwić niepowołane zmiany w stanie klasy
+6. Rozbijamy metody na mniejsze, po kilkanaście linii - ma to wpływ na kompilator jit
+7. Formatowanie tekstu też jest ważne - puste linie, kod zlewający się w jedną linijkę - to coś czego unikamy, kod ma być estetyczny
+8. Wybrałeś swinga, nowsza jest javafx.
+9. Co się stanie gdy ktoś wpisze w pierwszym oknie 11? Leci exception, do zabezpieczenia.
+10. Można wyszarzyć poprawnie sparowane słowa i podświetlić te źle na czerwono.
