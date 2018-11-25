@@ -1,80 +1,66 @@
 package com.myproject;
 
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.util.Random;
 
 public class Game implements ActionListener {
-    //pola w klasie powinny mieć modyfikator dostępu - domyślnie teraz jest protected, sugeruję private (poczytajcie o tym)
-    //pola powinny mieć nazwy, które opisują je w taki sposób, że gdy spojrzę to wiem do czego służy dany obiekt czy pole
-    JFrame frame = new JFrame("Memorki");
 
-    JPanel field = new JPanel();
-    JPanel menu = new JPanel();
-    JPanel menu2 = new JPanel();
-    JPanel menu3 = new JPanel();
-    JPanel mini = new JPanel();
+    private static final String STRING_DONE = "done";
+    private static final String WELCOME_MESSAGE = "Podaj liczbę kart od 1 do 10";
+    private static final String EMPTY_STRING = "";
+    private static final String WIN_MESSAGE = "Wygrałeś!";
+    private static final int NUMBER_OF_EQUAL_FIELDS = 2;
 
-    JPanel start_screen = new JPanel();
-    JPanel end_screen = new JPanel();
+    private JFrame mainFrame = new JFrame("Memorki");
 
-    //nie tworzy się obiektów w ten sposób, tworzenie obiektów powinno być po kontrolą, ujęte w metody
-    //do usunięcia magic number 20 i magic string Start, Wyjście itp. Najlepiej jest wyciągnąć to do zmiennych statycznych
-    //
-    JButton btn[] = new JButton[20];
-    JButton start = new JButton("Start");
-    JButton over = new JButton("Wyjscie");
-    JButton easy = new JButton("Easy");
-    JButton hard = new JButton("Hard");
-    JButton goBack = new JButton("Powrot do menu");
+    private JPanel field = new JPanel();
+    private JPanel menu = new JPanel();
+    private JPanel menu2 = new JPanel();
+    private JPanel menu3 = new JPanel();
 
-    Random randomGenerator = new Random();
+    private JPanel start_screen = new JPanel();
+    private JPanel end_screen = new JPanel();
+
+    private JButton btn[] = new JButton[20];
+    private JButton start = new JButton("Start");
+    private JButton over = new JButton("Wyjscie");
+    private JButton goBack = new JButton("Powrot do menu");
+
+    private Random randomGenerator = new Random();
     private boolean purgatory = false;
-    //pole nie jest używane - will be removed in next commit
-    JLabel winner;
-    //pole nie jest używane - will be removed in next commit
-    Boolean game_over = false;
-    //domyślna wartość int to 0, więc inicjalizacja jest zbędna
-    int level=0;
+    private int numberOfWordsOnBoard = 0;
 
 
-    String[] board;
-    //pole nie jest używane - will be removed in next commit
-    //formatowanie tekstu, kod powinien wyglądać tak: int[] boardQ = new int[20]; łatwiej się to czyta - will be removed in next commit
-    int[] boardQ=new int[20];
-    Boolean shown = true;
-    int temp=30;
-    int temp2=30;
-    String a[]=new String[10];
-    boolean eh=true;
+    private String[] board;
+    private Boolean shown = true;
+    private int temp = 30;
+    private int temp2 = 30;
 
-    //magic string
-    private JLabel label = new JLabel("Podaj liczbę kart od 1 do 10");
-    private JTextField text = new JTextField(10);
+    private JTextField textField = new JTextField(10);
 
-// bez modyfikatora
-    public Game(){
-        //do wyciągnięcia do osobnej metody
-        frame.setSize(500,300);
-        frame.setLocation(500,300);
-        frame.setLayout(new BorderLayout());
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    public Game() {
+        mainFrame.setSize(500, 300);
+        mainFrame.setLocation(500, 300);
+        mainFrame.setLayout(new BorderLayout());
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         start_screen.setLayout(new BorderLayout());
         menu.setLayout(new FlowLayout(FlowLayout.CENTER));
         menu2.setLayout(new FlowLayout(FlowLayout.CENTER));
         menu3.setLayout(new FlowLayout(FlowLayout.CENTER));
+        JPanel mini = new JPanel();
         mini.setLayout(new FlowLayout(FlowLayout.CENTER));
 
         start_screen.add(menu, BorderLayout.NORTH);
         start_screen.add(menu3, BorderLayout.CENTER);
         start_screen.add(menu2, BorderLayout.SOUTH);
         menu3.add(mini, BorderLayout.CENTER);
+        JLabel label = new JLabel(WELCOME_MESSAGE);
         menu.add(label);
-        menu.add(text);
-
+        menu.add(textField);
         start.addActionListener(this);
         start.setEnabled(true);
         menu2.add(start);
@@ -82,130 +68,87 @@ public class Game implements ActionListener {
         over.setEnabled(true);
         menu2.add(over);
 
-        frame.add(start_screen, BorderLayout.CENTER);
-        frame.setVisible(true);
+        mainFrame.add(start_screen, BorderLayout.CENTER);
+        mainFrame.setVisible(true);
     }
-    //private access
-    public void setUpGame(int x,Boolean what){
-        level=x;
+
+    private void setUpGame(int numberOfWordsOnBoard) {
         clearMain();
 
-        //magic int
-        board = new String[2*x];
-        for(int i=0;i<(x*2);i++){
-            //magic string
-            btn[i] = new JButton("");
-            btn[i].setBackground(new Color(220, 220, 220));
+        board = new String[NUMBER_OF_EQUAL_FIELDS * numberOfWordsOnBoard];
+        for (int i = 0; i < (numberOfWordsOnBoard * NUMBER_OF_EQUAL_FIELDS); i++) {
+            btn[i] = new JButton(EMPTY_STRING);
+            btn[i].setBackground(new Color(220, 220, 220)); //white
             btn[i].addActionListener(this);
             btn[i].setEnabled(true);
             field.add(btn[i]);
 
         }
 
-        //można zrobić z tego enuma
-        String[] c = {"auto","dom","chmura","pies","serce","diament","slonce","kot","drzewo","snieszka"};
-        //do osobnej metody
-        if(what) a=c;
-
-        //magic int
-        for(int i=0;i<x;i++){
-            for(int z=0;z<2;z++){
-                while(true){
-                    //magic int
-                    int y = randomGenerator.nextInt(x*2);
-                    if(board[y]==null){ //metoda equals zamiast ==
-                        btn[y].setText(a[i]);
-                        board[y]=a[i];
+        List<String> boardFieldsList = BoardUtils.getBoardFields();
+        for (int i = 0; i < numberOfWordsOnBoard; i++) {
+            for (int j = 0; j < NUMBER_OF_EQUAL_FIELDS; j++) {
+                while (true) {
+                    int y = randomGenerator.nextInt(numberOfWordsOnBoard * NUMBER_OF_EQUAL_FIELDS);
+                    if (board[y] == null) {
+                        btn[y].setText(boardFieldsList.get(i));
+                        board[y] = boardFieldsList.get(i);
                         break;
                     }
                 }
             }
-
-
         }
         createBoard();
-
     }
-    //private access
-    public void hideField(int x){
-        //magic int i string
-        for(int i=0;i<(x*2);i++){
-            btn[i].setText("");
+
+    private void hideField(int x) {
+        for (int i = 0; i < (x * NUMBER_OF_EQUAL_FIELDS); i++) {
+            btn[i].setText(EMPTY_STRING);
         }
-        shown=false;
+        shown = false;
     }
-    //magic string and private access
-    public void switchSpot(int i){//this will switch the current spot to either blank or what it should have
-        //stringi porównujemy metodą equals() - !DONE_STRING.equals(board[i])
-        if(board[i]!="done"){//when a match is correctly chosen, it will no longer switch when pressed
-            if(btn[i].getText()==""){
+
+    private void switchSpot(int i) {
+        if (!STRING_DONE.equals(board[i])) {
+            if (EMPTY_STRING.equals(btn[i].getText())) {
                 btn[i].setText(board[i]);
-
             } else {
-                //magic string
-                btn[i].setText("");
-
+                btn[i].setText(EMPTY_STRING);
             }
         }
     }
-    //metoda nie jest używana - will be removed in next commit
-    public void showSpot(int i){
-        btn[i].setText(board[i]);
-    }
-    //metoda nie jest używana - will be removed in next commit
-    public void showField(int x, String a[]){
-        for(int i=0;i<(x*2);i++){//magic int
-            btn[i].setText(a[i]);
-        }
-        shown=true;
-    }
-    //metoda nie jest używana - will be removed in next commit
-    void waitABit(){
 
-        try{
-            Thread.sleep(5);
-        } catch(Exception e){
-
+    private boolean checkWin() {
+        for (int i = 0; i < (numberOfWordsOnBoard * NUMBER_OF_EQUAL_FIELDS); i++) {
+            if (!STRING_DONE.equals(board[i]))
+                return false;
         }
-    }
-    //boolean zwracany przez tę metodę nie jest nigdzie wykorzystywany
-    public boolean checkWin(){//checks if every spot is labeled as done
-        for(int i=0;i<(level*2);i++){ //magic int
-            if (board[i]!="done")return false; //magic string, metoda equals zamiast !=
-        }
-        winner();
         return true;
     }
-    //private access
-    public void winner(){
 
+    private void winner() {
         start_screen.remove(field);
         start_screen.add(end_screen, BorderLayout.CENTER);
-        end_screen.add(new TextField("Wygrales"), BorderLayout.NORTH); //magic string
+        end_screen.add(new TextField(WIN_MESSAGE), BorderLayout.NORTH);
 
         end_screen.add(goBack);
         goBack.setEnabled(true);
         goBack.addActionListener(this);
-
-
-
-
     }
-    //private access
-    public void goToMainScreen(){
+
+    private void goToMainScreen() {
         new Game();
     }
-    //private access
-    public void createBoard(){
+
+    private void createBoard() {
         field.setLayout(new BorderLayout());
         start_screen.add(field, BorderLayout.CENTER);
 
-        field.setLayout(new GridLayout(5,4,2,2)); //można wyrzucić to do zmiennych
+        field.setLayout(new GridLayout(5, 4, 2, 2));
         field.setBackground(Color.black);
-
     }
-    //private access
-    public void clearMain(){
+
+    private void clearMain() {
         start_screen.remove(menu);
         start_screen.remove(menu2);
         start_screen.remove(menu3);
@@ -213,77 +156,63 @@ public class Game implements ActionListener {
         start_screen.revalidate();
         start_screen.repaint();
     }
-    //metoda na prawie 70 linii, do zmniejszenia/rozbicia na kilka metod
-    public void actionPerformed(ActionEvent click){
+
+    public void actionPerformed(ActionEvent click) {
         Object source = click.getSource();
-        if(purgatory){
+
+        if (purgatory) {
             switchSpot(temp2);
             switchSpot(temp);
-            temp=(level*2); //magic int
-            temp2=30; //magic int
-            purgatory=false; // magic boolean
+            temp = (numberOfWordsOnBoard * NUMBER_OF_EQUAL_FIELDS);
+            temp2 = 30;
+            purgatory = false;
         }
-        if(source==start){
-            try{
-                level = Integer.parseInt(text.getText());
-            } catch (Exception e){
-                level=1; //magic int
-            }
 
-            setUpGame(level, eh);
+        if (source == start) {
+            try {
+                numberOfWordsOnBoard = Integer.parseInt(textField.getText());
+            } catch (Exception e) {
+                numberOfWordsOnBoard = 1;
+            }
+            setUpGame(numberOfWordsOnBoard);
         }
-        if(source==over){
+
+        if (source == over) {
             System.exit(0);
         }
 
-        if(source==goBack){
-            frame.dispose();
+        if (source == goBack) {
+            mainFrame.dispose();
             goToMainScreen();
         }
-        if(source==easy){
-            eh=true;
-            easy.setForeground(Color.BLUE);
-            hard.setForeground(Color.BLACK);
-        } else if(source==hard){
-            eh=false;
-            hard.setForeground(Color.BLUE);
-            easy.setForeground(Color.BLACK);
-        }
 
-        for(int i =0;i<(level*2);i++){//magic int
-            if(source==btn[i]){
-                if(shown){
-                    hideField(level);
-                }else{
+        for (int i = 0; i < (numberOfWordsOnBoard * NUMBER_OF_EQUAL_FIELDS); i++) {
+            if (source == btn[i]) {
+                if (shown) {
+                    hideField(numberOfWordsOnBoard);
+                } else {
                     switchSpot(i);
-                    if(temp>=(level*2)){ //magic int
-                        temp=i;
+                    if (temp >= (numberOfWordsOnBoard * NUMBER_OF_EQUAL_FIELDS)) {
+                        temp = i;
                     } else {
-                        if((board[temp]!=board[i])||(temp==i)){ //metoda equals zamiast !=
-                            temp2=i;
-                            purgatory=true;
-
-                            //tutaj jest sporo wolnych linii, dbamy o wygląd i estetykę klasy - will be removed in next commit
-
+                        if ((!board[temp].equals(board[i])) || (temp == i)) {
+                            temp2 = i;
+                            purgatory = true;
                         } else {
-                            board[i]="done";
-                            board[temp]="done";
-                            checkWin();
-                            temp=(level*2);
+                            board[i] = STRING_DONE;
+                            board[temp] = STRING_DONE;
+                            if (checkWin()) {
+                                winner();
+                            }
+                            temp = (numberOfWordsOnBoard * NUMBER_OF_EQUAL_FIELDS);
                         }
-
                     }
                 }
-
             }
-
-//ta sama uwaga ze zbędnymi liniami - will be removed in next commit
         }
-
-
     }
+
     public static void main(String[] args) {
         new Game();
     }
-
 }
