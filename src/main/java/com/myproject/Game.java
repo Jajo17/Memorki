@@ -153,7 +153,7 @@ public class Game implements ActionListener {
 
         start_screen.remove(field);
         start_screen.add(end_screen, BorderLayout.CENTER);
-        end_screen.add(new TextField("Wygrales"), BorderLayout.NORTH);
+        end_screen.add(new JLabel("Wygrales"), BorderLayout.NORTH);
 
         end_screen.add(goBack);
         goBack.setEnabled(true);
